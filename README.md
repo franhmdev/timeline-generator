@@ -91,3 +91,4 @@ src/
 5. Usa el botón `+` verde para añadir líneas o hitos a una tarea
 6. Haz clic en una semana de la cabecera para añadir un hito
 7. Usa los botones de la barra superior para guardar, exportar o importar
+*(Este README reemplaza la descripción inicial del repositorio en GitHub)*
