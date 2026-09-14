@@ -19,8 +19,8 @@ const items: LegendItem[] = [
   },
   {
     label: "Dependencia",
-    color: "#94a3b8",
-    icon: <LinkIcon size={14} className="text-slate-400" />,
+    color: "#06b6d4",
+    icon: <LinkIcon size={14} className="text-cyan-400" />,
   },
   {
     label: "Tarea",

@@ -11,12 +11,17 @@ export interface Bar {
   type: BarType;
 }
 
+/** Tipo de marcador temporal. */
+export type MilestoneType = "hito" | "dependency";
+
 /** Hito: punto único en una semana. */
 export interface Milestone {
   id: string;
   /** Índice de semana. */
   week: number;
   label: string;
+  /** Tipo de marcador: hito (estrella) o dependency (eslabón). */
+  type: MilestoneType;
 }
 
 /** Dependencia entre dos hitos. */

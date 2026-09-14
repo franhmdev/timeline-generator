@@ -171,6 +171,11 @@ export const GanttChart = forwardRef<HTMLDivElement, GanttChartProps>(
                       .getState()
                       .addMilestone(phase.id, taskId, week, label)
                   }
+                  onAddDependency={(taskId, week, label) =>
+                    useGanttStore
+                      .getState()
+                      .addMilestone(phase.id, taskId, week, label || "Nueva dependencia", "dependency")
+                  }
                   onUpdateMilestone={(taskId, msId, patch) => {
                     if ("week" in patch)
                       useGanttStore

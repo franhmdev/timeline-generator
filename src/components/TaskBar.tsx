@@ -4,7 +4,7 @@ import { useLayout } from "./layout";
 import { useHorizontalDrag } from "../lib/useDrag";
 import { formatDate } from "../lib/timeline";
 import type { WeekColumn } from "../types";
-import { LinkIcon } from "./Icons";
+import { DiamondIcon, LinkIcon } from "./Icons";
 
 interface TaskBarProps {
   bar: Bar;
@@ -13,6 +13,7 @@ interface TaskBarProps {
   onUpdate: (patch: Partial<Bar>) => void;
   onDelete: () => void;
   onAddMilestoneAtEnd?: () => void;
+  onAddDependencyAtEnd?: () => void;
 }
 
 const BAR_STYLES: Record<
@@ -38,6 +39,7 @@ export const TaskBar: React.FC<TaskBarProps> = ({
   onUpdate,
   onDelete,
   onAddMilestoneAtEnd,
+  onAddDependencyAtEnd,
 }) => {
   const { weekWidth, rowHeight } = useLayout();
   const [tooltip, setTooltip] = useState<{
@@ -227,7 +229,7 @@ export const TaskBar: React.FC<TaskBarProps> = ({
           moveDrag.onPointerDown(e);
         }}
         onContextMenu={(e) => {
-          if (onAddMilestoneAtEnd) {
+          if (onAddMilestoneAtEnd || onAddDependencyAtEnd) {
             e.preventDefault();
             e.stopPropagation();
             setContextMenu({ x: e.clientX, y: e.clientY });
@@ -312,16 +314,30 @@ export const TaskBar: React.FC<TaskBarProps> = ({
               left: Math.min(contextMenu.x, window.innerWidth - 200),
             }}
           >
-            <button
-              onClick={() => {
-                onAddMilestoneAtEnd?.();
-                setContextMenu(null);
-              }}
-              className="flex items-center gap-2 w-full text-left px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-700"
-            >
-              <LinkIcon size={12} className="text-slate-400" />
-              Añadir dependencia
-            </button>
+            {onAddMilestoneAtEnd && (
+              <button
+                onClick={() => {
+                  onAddMilestoneAtEnd?.();
+                  setContextMenu(null);
+                }}
+                className="flex items-center gap-2 w-full text-left px-3 py-1.5 text-xs text-orange-300 hover:bg-slate-700"
+              >
+                <DiamondIcon size={12} className="text-orange-400" />
+                Añadir hito
+              </button>
+            )}
+            {onAddDependencyAtEnd && (
+              <button
+                onClick={() => {
+                  onAddDependencyAtEnd?.();
+                  setContextMenu(null);
+                }}
+                className="flex items-center gap-2 w-full text-left px-3 py-1.5 text-xs text-cyan-300 hover:bg-slate-700"
+              >
+                <LinkIcon size={12} className="text-cyan-400" />
+                Añadir dependencia
+              </button>
+            )}
           </div>
         </>
       )}

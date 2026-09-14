@@ -4,6 +4,7 @@ import type {
   BarType,
   Dependency,
   Milestone,
+  MilestoneType,
   Phase,
   ProjectInfo,
   ScheduleState,
@@ -66,7 +67,8 @@ interface GanttStore extends ScheduleState {
     phaseId: string,
     taskId: string,
     week: number,
-    label?: string
+    label?: string,
+    type?: MilestoneType
   ) => void;
   removeMilestone: (phaseId: string, taskId: string, msId: string) => void;
   renameMilestone: (
@@ -112,9 +114,20 @@ function loadInitialState(): ScheduleState {
             parsed.project.startDate ?? parsed.project.kickoffDate ?? todayISO(),
         }
       : defaultProject;
+    // Migración: asegurar que todos los milestones tengan tipo
+    const phases = (parsed.phases ?? []).map((p) => ({
+      ...p,
+      tasks: p.tasks.map((t) => ({
+        ...t,
+        milestones: t.milestones.map((m) => ({
+          ...m,
+          type: m.type ?? "hito",
+        })),
+      })),
+    }));
     return {
       project,
-      phases: parsed.phases ?? [],
+      phases,
       dependencies: parsed.dependencies ?? [],
     };
   } catch {
@@ -303,7 +316,13 @@ export const useGanttStore = create<GanttStore>((set, get) => {
       ),
     })),
 
-  addMilestone: (phaseId, taskId, week, label = "Nuevo hito") =>
+  addMilestone: (
+    phaseId,
+    taskId,
+    week,
+    label = "Nuevo hito",
+    type: MilestoneType = "hito"
+  ) =>
     set((state) => ({
       phases: state.phases.map((p) =>
         p.id === phaseId
@@ -319,6 +338,7 @@ export const useGanttStore = create<GanttStore>((set, get) => {
                           id: uid("ms"),
                           week,
                           label,
+                          type,
                         } as Milestone,
                       ],
                     }
@@ -434,7 +454,16 @@ export const useGanttStore = create<GanttStore>((set, get) => {
       const parsed = JSON.parse(raw) as ScheduleState;
       set({
         project: parsed.project ?? defaultProject,
-        phases: parsed.phases ?? [],
+        phases: (parsed.phases ?? []).map((p) => ({
+          ...p,
+          tasks: p.tasks.map((t) => ({
+            ...t,
+            milestones: t.milestones.map((m) => ({
+              ...m,
+              type: m.type ?? "hito",
+            })),
+          })),
+        })),
         dependencies: parsed.dependencies ?? [],
       });
     } catch {

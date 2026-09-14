@@ -24,6 +24,7 @@ interface PhaseSectionProps {
     patch: Partial<Task["bars"][number]>
   ) => void;
   onAddMilestone: (taskId: string, week: number, label?: string) => void;
+  onAddDependency: (taskId: string, week: number, label?: string) => void;
   onUpdateMilestone: (
     taskId: string,
     msId: string,
@@ -51,6 +52,7 @@ export const PhaseSection: React.FC<PhaseSectionProps> = ({
   onRemoveBar,
   onUpdateBar,
   onAddMilestone,
+  onAddDependency,
   onUpdateMilestone,
   onRemoveMilestone,
   onRenameMilestone,
@@ -255,6 +257,9 @@ export const PhaseSection: React.FC<PhaseSectionProps> = ({
             onRemoveBar={(barId) => onRemoveBar(task.id, barId)}
             onAddMilestone={(week, label) =>
               onAddMilestone(task.id, week, label)
+            }
+            onAddDependency={(week, label) =>
+              onAddDependency(task.id, week, label)
             }
             onUpdateMilestone={(msId, patch) =>
               onUpdateMilestone(task.id, msId, patch)

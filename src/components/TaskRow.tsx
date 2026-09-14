@@ -20,6 +20,7 @@ interface TaskRowProps {
   onUpdateBar: (barId: string, patch: Partial<Task["bars"][number]>) => void;
   onRemoveBar: (barId: string) => void;
   onAddMilestone: (week: number, label?: string) => void;
+  onAddDependency: (week: number, label?: string) => void;
   onUpdateMilestone: (
     msId: string,
     patch: Partial<Task["milestones"][number]>
@@ -41,6 +42,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
   onUpdateBar,
   onRemoveBar,
   onAddMilestone,
+  onAddDependency,
   onUpdateMilestone,
   onRemoveMilestone,
   onRenameMilestone,
@@ -287,6 +289,9 @@ export const TaskRow: React.FC<TaskRowProps> = ({
             onDelete={() => onRemoveBar(bar.id)}
             onAddMilestoneAtEnd={() =>
               onAddMilestone(bar.startWeek + bar.duration)
+            }
+            onAddDependencyAtEnd={() =>
+              onAddDependency(bar.startWeek + bar.duration, "Nueva dependencia")
             }
           />
         ))}
