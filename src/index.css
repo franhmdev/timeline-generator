@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  background: #0b1120;
+  color: #e2e8f0;
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Scrollbar estilizada */
+::-webkit-scrollbar {
+  height: 12px;
+  width: 12px;
+}
+::-webkit-scrollbar-track {
+  background: #0b1120;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 6px;
+  border: 2px solid #0b1120;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* Sin selección de texto durante drag */
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Ocultar botones de acción durante exportación */
+[data-exporting="true"] .gantt-action {
+  display: none !important;
+}
+
+/* Tooltip flotante */
+.gantt-tooltip {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  background: #0f172a;
+  border: 1px solid #334155;
+  color: #e2e8f0;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
