@@ -45,7 +45,7 @@ src/
     ├── PhaseSection.tsx      # Fase principal (cabecera oscura + tareas)
     ├── TaskRow.tsx          # Fila de tarea con barras e hitos
     ├── TaskBar.tsx           # Barra de tarea con drag y resize
-    ├── MilestoneMarker.tsx  # Hito (diamante) con arrastre y edición
+    ├── MilestoneMarker.tsx  # Hito (estrella) o dependencia (eslabón) con arrastre y edición
     └── GanttChart.tsx       # Contenedor principal del cronograma
 ```
 
@@ -55,24 +55,27 @@ src/
 - **Proyecto** con nombre, descripción, fecha de kick-off y duración en meses
 - **Fases** como cabeceras oscuras que agrupan tareas
 - **Tareas** con múltiples líneas/barras temporales y múltiples hitos
-- **Barras** con tipo visual: `task` (celeste), `phase` (gris), `management` (azul)
-- **Hitos** como puntos únicos en el tiempo (diamante naranja)
-- **Dependencias** entre hitos (enlace visual)
+- **Barras** con tipo visual: `task` (celeste), `phase` (gris)
+- **Hitos** como puntos únicos en el tiempo, identificados con icono de **estrella** naranja
+- **Dependencias** como marcadores temporales con icono de **eslabón** cian, diferenciados visualmente de los hitos
+- **Enlaces** entre hitos/dependencias (relación visual entre marcadores)
 
 ### Eje temporal
 - Organizado por semanas, agrupadas en meses y años
-- Semana especial **S0** (kick-off) resaltada en amarillo
-- Columna de la semana actual ("hoy") resaltada
+- Semana especial **S0** (kick-off) con punto amarillo en la esquina superior derecha
+- Columna de la semana actual ("hoy") resaltada con fondo amarillo semitransparente
 - Scroll horizontal fluido
 
 ### Interactividad
 - **Drag & drop horizontal**: arrastra una barra para mover su semana de inicio (snap a semanas)
 - **Resize**: handles en ambos extremos para alargar/acortar la duración
 - **Tooltips en tiempo real** durante arrastre/redimensión mostrando fechas y duración
-- **Añadir/eliminar** dinámicamente: fases, tareas, líneas (barras) e hitos
-- **Añadir hito** haciendo clic en cualquier columna de semana
-- **Inline editing**: doble clic para editar texto de fases, tareas e hitos
-- **Dependencias**: botón de enlace en cada hito para conectarlo con otro
+- **Añadir/eliminar** dinámicamente: fases, tareas, líneas (barras), hitos y dependencias
+- **Menú contextual** (clic derecho sobre barra): añadir hito o dependencia
+- **Añadir hito** haciendo clic en cualquier columna de semana de la cabecera
+- **Inline editing**: doble clic o botón de editar (lápiz) para editar texto de fases y tareas
+- **Botones de acción** (editar, añadir, eliminar) visibles al hacer hover sobre fases y tareas
+- **Dependencias**: crea enlaces entre hitos seleccionando origen y destino
 
 ### Exportación y persistencia
 - **PNG**: exportar el cronograma como imagen
@@ -87,8 +90,9 @@ src/
 1. La aplicación carga con un ejemplo completo
 2. Arrastra las barras para cambiar su fecha de inicio
 3. Usa los extremos (aparecen al hacer hover) para cambiar la duración
-4. Haz doble clic en cualquier texto para editarlo
-5. Usa el botón `+` verde para añadir líneas o hitos a una tarea
-6. Haz clic en una semana de la cabecera para añadir un hito
-7. Usa los botones de la barra superior para guardar, exportar o importar
+4. Haz doble clic en cualquier texto o usa el botón de editar (lápiz) para editarlo
+5. Usa el botón `+` de la tarea para añadir trabajos (barras) o hitos
+6. Haz clic derecho sobre una barra para añadir un hito o una dependencia
+7. Haz clic en una semana de la cabecera para añadir un hito en esa posición
+8. Usa los botones de la barra superior para guardar, exportar o importar
 *(Este README reemplaza la descripción inicial del repositorio en GitHub)*
