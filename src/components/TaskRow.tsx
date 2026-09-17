@@ -145,7 +145,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
 
   return (
     <div
-      className={`flex border-b border-slate-800/60 hover:bg-slate-800/20 group ${
+      className={`group/task flex border-b border-slate-800/60 hover:bg-slate-800/20 ${
         showBarMenu ? "relative z-50" : "relative"
       } ${isDragging ? "opacity-80 ring-2 ring-cyan-400 z-50" : ""}`}
       style={{ height: rowHeight, transform: isDragging ? `translateY(${dragY}px)` : undefined }}
@@ -196,15 +196,22 @@ export const TaskRow: React.FC<TaskRowProps> = ({
             <span className="text-sm text-slate-200 truncate flex-1">
               {task.name}
             </span>
-            <EditIcon
-              size={12}
-              className="text-slate-500 opacity-0 group-hover/name:opacity-100 transition-opacity shrink-0"
-            />
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setDraft(task.name);
+                setEditing(true);
+              }}
+              className="gantt-action w-5 h-5 rounded bg-slate-600 hover:bg-slate-500 text-slate-200 flex items-center justify-center opacity-0 group-hover/task:opacity-100 transition-opacity shrink-0"
+              title="Editar tarea"
+            >
+              <EditIcon size={11} />
+            </button>
           </div>
         )}
 
         {/* Menú añadir línea */}
-        <div className="relative gantt-action">
+        <div className="relative gantt-action opacity-0 group-hover/task:opacity-100 transition-opacity">
           <button
             onClick={openBarMenu}
             className="w-5 h-5 rounded bg-slate-700 hover:bg-blue-600 text-slate-200 flex items-center justify-center"
@@ -233,7 +240,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
                   }}
                   className="block w-full text-left px-3 py-1 text-xs text-slate-200 hover:bg-slate-700"
                 >
-                  + Tarea
+                  + Trabajo
                 </button>
                 <button
                   onClick={() => {
@@ -251,7 +258,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
 
         <button
           onClick={onRemove}
-          className="gantt-action w-5 h-5 rounded bg-rose-800/60 hover:bg-rose-600 text-rose-100 flex items-center justify-center opacity-0 group-hover:opacity-100"
+          className="gantt-action w-5 h-5 rounded bg-rose-800/60 hover:bg-rose-600 text-rose-100 flex items-center justify-center opacity-0 group-hover/task:opacity-100 transition-opacity"
           title="Eliminar tarea"
         >
           <TrashIcon size={11} />
@@ -341,7 +348,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
               }}
               className="block w-full text-left px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-700"
             >
-              + Tarea (4 sem)
+              + Trabajo (4 sem)
             </button>
             <button
               onClick={() => {

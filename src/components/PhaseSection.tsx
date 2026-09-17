@@ -114,7 +114,7 @@ export const PhaseSection: React.FC<PhaseSectionProps> = ({
 
   return (
     <div
-      className={`border-b border-slate-900 ${isDragging ? "opacity-80 ring-2 ring-cyan-400 z-50 relative" : ""}`}
+      className={`group/phase border-b border-slate-900 ${isDragging ? "opacity-80 ring-2 ring-cyan-400 z-50 relative" : ""}`}
       style={{ transform: isDragging ? `translateY(${dragY}px)` : undefined }}
     >
       {/* Cabecera de fase */}
@@ -164,16 +164,23 @@ export const PhaseSection: React.FC<PhaseSectionProps> = ({
               <span className="text-sm font-bold text-white truncate flex-1">
                 {phase.name}
               </span>
-              <EditIcon
-                size={13}
-                className="text-slate-400 opacity-0 group-hover/name:opacity-100 transition-opacity shrink-0"
-              />
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setDraft(phase.name);
+                  setEditing(true);
+                }}
+                className="gantt-action w-5 h-5 rounded bg-slate-600 hover:bg-slate-500 text-slate-200 flex items-center justify-center opacity-0 group-hover/phase:opacity-100 transition-opacity shrink-0"
+                title="Editar fase"
+              >
+                <EditIcon size={11} />
+              </button>
             </div>
           )}
           {!compact && (
             <button
               onClick={onAddTask}
-              className="gantt-action w-5 h-5 rounded bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center"
+              className="gantt-action w-5 h-5 rounded bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center opacity-0 group-hover/phase:opacity-100 transition-opacity"
               title="Añadir tarea"
             >
               <PlusIcon size={12} />
@@ -182,7 +189,7 @@ export const PhaseSection: React.FC<PhaseSectionProps> = ({
           {!compact && (
             <button
               onClick={onRemove}
-              className="gantt-action w-5 h-5 rounded bg-rose-700 hover:bg-rose-600 text-white flex items-center justify-center"
+              className="gantt-action w-5 h-5 rounded bg-rose-700 hover:bg-rose-600 text-white flex items-center justify-center opacity-0 group-hover/phase:opacity-100 transition-opacity"
               title="Eliminar fase"
             >
               <TrashIcon size={11} />

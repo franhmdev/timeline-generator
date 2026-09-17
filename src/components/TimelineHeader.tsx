@@ -79,9 +79,7 @@ export const TimelineHeader: React.FC<TimelineHeaderProps> = ({
               onClick={(e) => onWeekClick?.(w.index, e)}
               title={`${w.label} · ${w.startDate.toLocaleDateString("es-ES")}`}
               className={`relative h-10 flex items-center justify-center text-[10px] font-medium border-r border-slate-800/60 transition-colors ${
-                w.isKickoff
-                  ? "bg-yellow-300/15 text-yellow-200 hover:bg-yellow-300/25"
-                  : w.isToday
+                w.isToday
                   ? "bg-yellow-400/15 text-yellow-200 hover:bg-yellow-400/25"
                   : "text-slate-400 hover:bg-slate-700/40"
               } ${
@@ -93,7 +91,7 @@ export const TimelineHeader: React.FC<TimelineHeaderProps> = ({
             >
               {w.label}
               {w.isKickoff && (
-                <span className="absolute top-0 right-0 w-1.5 h-1.5 rounded-full bg-yellow-300" />
+                <span className="absolute top-[5px] right-[5px] w-1.5 h-1.5 rounded-full bg-yellow-300" />
               )}
             </button>
           ))}

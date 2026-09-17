@@ -33,14 +33,16 @@ const items: LegendItem[] = [
     label: "Kick-off",
     color: "#fde047",
     swatch: (
-      <div className="h-3 w-6 rounded bg-yellow-300/40 border border-yellow-300" />
+      <div className="relative w-6 h-3 flex items-center justify-end">
+        <span className="w-1.5 h-1.5 rounded-full bg-yellow-300" />
+      </div>
     ),
   },
   {
     label: "Hoy",
     color: "#facc15",
     swatch: (
-      <div className="h-3 w-1.5 rounded bg-yellow-400" />
+      <div className="h-3 w-6 rounded bg-yellow-400/15 border border-yellow-400/30" />
     ),
   },
 ];
