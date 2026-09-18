@@ -31,6 +31,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
       project: state.project,
       phases: state.phases,
       dependencies: state.dependencies,
+      externalTasks: state.externalTasks,
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], {
       type: "application/json",

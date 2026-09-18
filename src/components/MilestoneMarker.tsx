@@ -23,8 +23,8 @@ export const MilestoneMarker: React.FC<MilestoneMarkerProps> = ({
   onUpdate,
   onDelete,
   onRename,
-  onLinkStart,
-  isLinkSource,
+  onLinkStart: _onLinkStart,
+  isLinkSource: _isLinkSource,
 }) => {
   const { weekWidth, rowHeight } = useLayout();
   const [editing, setEditing] = useState(false);
@@ -38,7 +38,6 @@ export const MilestoneMarker: React.FC<MilestoneMarkerProps> = ({
   const [visualDelta, setVisualDelta] = useState(0);
 
   const clampWeek = (w: number) => Math.max(0, Math.min(totalWeeks - 1, w));
-  const week = weeks[milestone.week];
 
   const drag = useHorizontalDrag({
     onStart: () => {

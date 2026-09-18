@@ -122,7 +122,7 @@ export function buildWeekColumns(project: ProjectInfo): WeekColumn[] {
  */
 function dominantMonthOf(
   weekStart: Date,
-  weekStartDay: number
+  _weekStartDay: number
 ): { year: number; month: number } {
   const counts: Record<string, number> = {};
   for (let i = 0; i < 7; i++) {

@@ -24,11 +24,30 @@ export interface Milestone {
   type: MilestoneType;
 }
 
-/** Dependencia entre dos hitos. */
+/** Tarea externa (ej. entrega de un proveedor externo). */
+export interface ExternalTask {
+  id: string;
+  /** Nombre descriptivo, ej. "Entrega de diseños". */
+  label: string;
+  /** Proveedor responsable (opcional). */
+  provider?: string;
+  /** Semana prevista de entrega. */
+  week: number;
+}
+
+/** Tipo de destino de una dependencia. */
+export type DependencyTargetType = "milestone" | "external";
+
+/** Dependencia entre un hito y otro hito o una tarea externa. */
 export interface Dependency {
   id: string;
   fromMilestoneId: string;
-  toMilestoneId: string;
+  /** Tipo de destino: hito interno o tarea externa. */
+  toType: DependencyTargetType;
+  /** ID del hito destino (si toType === "milestone"). */
+  toMilestoneId?: string;
+  /** ID de la tarea externa destino (si toType === "external"). */
+  toExternalId?: string;
 }
 
 /** Tarea / subítem dentro de una fase. */
@@ -65,6 +84,8 @@ export interface ScheduleState {
   project: ProjectInfo;
   phases: Phase[];
   dependencies: Dependency[];
+  /** Tareas externas (proveedores, entregas de terceros). */
+  externalTasks: ExternalTask[];
 }
 
 /** Representación de una columna de semana en el timeline. */

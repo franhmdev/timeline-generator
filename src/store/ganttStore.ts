@@ -3,6 +3,8 @@ import type {
   Bar,
   BarType,
   Dependency,
+  DependencyTargetType,
+  ExternalTask,
   Milestone,
   MilestoneType,
   Phase,
@@ -84,8 +86,16 @@ interface GanttStore extends ScheduleState {
     week: number
   ) => void;
   // Dependencies
-  addDependency: (fromMilestoneId: string, toMilestoneId: string) => void;
+  addDependency: (
+    fromMilestoneId: string,
+    toType: DependencyTargetType,
+    toId: string
+  ) => void;
   removeDependency: (depId: string) => void;
+  // External tasks
+  addExternalTask: (label: string, week: number, provider?: string) => string;
+  removeExternalTask: (extId: string) => void;
+  renameExternalTask: (extId: string, label: string) => void;
   // Persistence
   saveToStorage: () => void;
   loadFromStorage: () => void;
@@ -101,6 +111,7 @@ function loadInitialState(): ScheduleState {
       project: defaultProject,
       phases: defaultPhases(),
       dependencies: [],
+      externalTasks: [],
     };
   }
   try {
@@ -125,16 +136,31 @@ function loadInitialState(): ScheduleState {
         })),
       })),
     }));
+    // Migración: convertir dependencias antiguas (toMilestoneId) al nuevo formato
+    const dependencies = (parsed.dependencies ?? []).map((d) => {
+      const oldTo = (d as unknown as { toMilestoneId?: string }).toMilestoneId;
+      if (oldTo) {
+        return {
+          id: d.id,
+          fromMilestoneId: d.fromMilestoneId,
+          toType: "milestone" as DependencyTargetType,
+          toMilestoneId: oldTo,
+        };
+      }
+      return d;
+    });
     return {
       project,
       phases,
-      dependencies: parsed.dependencies ?? [],
+      dependencies,
+      externalTasks: parsed.externalTasks ?? [],
     };
   } catch {
     return {
       project: defaultProject,
       phases: defaultPhases(),
       dependencies: [],
+      externalTasks: [],
     };
   }
 }
@@ -148,6 +174,7 @@ function persistState(state: ScheduleState) {
         project: state.project,
         phases: state.phases,
         dependencies: state.dependencies,
+        externalTasks: state.externalTasks,
       })
     );
   } catch {
@@ -162,6 +189,7 @@ export const useGanttStore = create<GanttStore>((set, get) => {
     project: initial.project,
     phases: initial.phases,
     dependencies: initial.dependencies,
+    externalTasks: initial.externalTasks,
 
   setProject: (patch) =>
     set((state) => ({ project: { ...state.project, ...patch } })),
@@ -415,22 +443,29 @@ export const useGanttStore = create<GanttStore>((set, get) => {
       ),
     })),
 
-  addDependency: (fromMilestoneId, toMilestoneId) =>
+  addDependency: (fromMilestoneId, toType, toId) =>
     set((state) => {
-      if (fromMilestoneId === toMilestoneId) return state;
+      // Evitar duplicados
       if (
         state.dependencies.some(
           (d) =>
             d.fromMilestoneId === fromMilestoneId &&
-            d.toMilestoneId === toMilestoneId
+            d.toType === toType &&
+            ((toType === "milestone" && d.toMilestoneId === toId) ||
+              (toType === "external" && d.toExternalId === toId))
         )
       )
         return state;
+      const newDep: Dependency = {
+        id: uid("dep"),
+        fromMilestoneId,
+        toType,
+        ...(toType === "milestone"
+          ? { toMilestoneId: toId }
+          : { toExternalId: toId }),
+      };
       return {
-        dependencies: [
-          ...state.dependencies,
-          { id: uid("dep"), fromMilestoneId, toMilestoneId } as Dependency,
-        ],
+        dependencies: [...state.dependencies, newDep],
       };
     }),
 
@@ -439,11 +474,37 @@ export const useGanttStore = create<GanttStore>((set, get) => {
       dependencies: state.dependencies.filter((d) => d.id !== depId),
     })),
 
+  addExternalTask: (label, week, provider) => {
+    const id = uid("ext");
+    set((state) => ({
+      externalTasks: [
+        ...state.externalTasks,
+        { id, label, week, provider } as ExternalTask,
+      ],
+    }));
+    return id;
+  },
+
+  removeExternalTask: (extId) =>
+    set((state) => ({
+      externalTasks: state.externalTasks.filter((e) => e.id !== extId),
+      dependencies: state.dependencies.filter(
+        (d) => !(d.toType === "external" && d.toExternalId === extId)
+      ),
+    })),
+
+  renameExternalTask: (extId, label) =>
+    set((state) => ({
+      externalTasks: state.externalTasks.map((e) =>
+        e.id === extId ? { ...e, label } : e
+      ),
+    })),
+
   saveToStorage: () => {
-    const { project, phases, dependencies } = get();
+    const { project, phases, dependencies, externalTasks } = get();
     localStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify({ project, phases, dependencies })
+      JSON.stringify({ project, phases, dependencies, externalTasks })
     );
   },
 
@@ -465,6 +526,7 @@ export const useGanttStore = create<GanttStore>((set, get) => {
           })),
         })),
         dependencies: parsed.dependencies ?? [],
+        externalTasks: parsed.externalTasks ?? [],
       });
     } catch {
       // ignore
@@ -476,6 +538,7 @@ export const useGanttStore = create<GanttStore>((set, get) => {
       project: defaultProject,
       phases: defaultPhases(),
       dependencies: [],
+      externalTasks: [],
     }),
 
   loadState: (state) =>
@@ -483,6 +546,7 @@ export const useGanttStore = create<GanttStore>((set, get) => {
       project: state.project,
       phases: state.phases,
       dependencies: state.dependencies,
+      externalTasks: state.externalTasks ?? [],
     }),
   };
 });

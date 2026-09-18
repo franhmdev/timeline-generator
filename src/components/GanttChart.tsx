@@ -247,10 +247,25 @@ export const GanttChart = forwardRef<HTMLDivElement, GanttChartProps>(
         {linkingFrom && (
           <DependencyBanner
             onCancel={() => setLinkingFrom(null)}
-            onSelectTarget={(targetMsId) => {
+            onSelectMilestoneTarget={(targetMsId) => {
               useGanttStore
                 .getState()
-                .addDependency(linkingFrom.msId, targetMsId);
+                .addDependency(linkingFrom.msId, "milestone", targetMsId);
+              setLinkingFrom(null);
+            }}
+            onSelectExternalTarget={(label, week, provider) => {
+              const extId = useGanttStore
+                .getState()
+                .addExternalTask(label, week, provider);
+              useGanttStore
+                .getState()
+                .addDependency(linkingFrom.msId, "external", extId);
+              setLinkingFrom(null);
+            }}
+            onSelectExistingExternal={(extId) => {
+              useGanttStore
+                .getState()
+                .addDependency(linkingFrom.msId, "external", extId);
               setLinkingFrom(null);
             }}
             excludedMsId={linkingFrom.msId}
@@ -375,10 +390,27 @@ const AddMilestoneDialog: React.FC<{
 /** Banner que indica modo de creación de dependencia. */
 const DependencyBanner: React.FC<{
   onCancel: () => void;
-  onSelectTarget: (msId: string) => void;
+  onSelectMilestoneTarget: (msId: string) => void;
+  onSelectExternalTarget: (label: string, week: number, provider?: string) => void;
+  onSelectExistingExternal: (extId: string) => void;
   excludedMsId: string;
-}> = ({ onCancel, onSelectTarget, excludedMsId }) => {
+}> = ({
+  onCancel,
+  onSelectMilestoneTarget,
+  onSelectExternalTarget,
+  onSelectExistingExternal,
+  excludedMsId,
+}) => {
   const phases = useGanttStore((s) => s.phases);
+  const externalTasks = useGanttStore((s) => s.externalTasks);
+  const weeks = buildWeekColumns(useGanttStore.getState().project);
+  const [mode, setMode] = useState<"milestone" | "external-existing" | "external-new">(
+    "milestone"
+  );
+  const [extLabel, setExtLabel] = useState("Entrega de diseños");
+  const [extProvider, setExtProvider] = useState("");
+  const [extWeek, setExtWeek] = useState(0);
+
   const allMilestones = phases.flatMap((p) =>
     p.tasks.flatMap((t) =>
       t.milestones.map((m) => ({
@@ -390,9 +422,13 @@ const DependencyBanner: React.FC<{
     )
   );
 
+  const availableMilestones = allMilestones.filter(
+    (m) => m.id !== excludedMsId
+  );
+
   return (
-    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-cyan-900 border border-cyan-500 rounded-lg shadow-2xl px-4 py-3 w-96">
-      <div className="flex items-center justify-between mb-2">
+    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-cyan-900 border border-cyan-500 rounded-lg shadow-2xl px-4 py-3 w-[28rem]">
+      <div className="flex items-center justify-between mb-3">
         <span className="text-sm font-semibold text-cyan-100">
           🔗 Crear dependencia
         </span>
@@ -403,27 +439,158 @@ const DependencyBanner: React.FC<{
           ✕ Cancelar
         </button>
       </div>
-      <p className="text-xs text-cyan-200/70 mb-2">
-        Selecciona el hito de destino:
-      </p>
-      <select
-        className="w-full bg-slate-900 border border-slate-600 rounded px-2 py-1 text-xs text-white mb-2"
-        defaultValue=""
-        onChange={(e) => {
-          if (e.target.value) onSelectTarget(e.target.value);
-        }}
-      >
-        <option value="" disabled>
-          -- Elige hito destino --
-        </option>
-        {allMilestones
-          .filter((m) => m.id !== excludedMsId)
-          .map((m) => (
-            <option key={m.id} value={m.id}>
-              {m.label} ({m.phaseName} / {m.taskName})
-            </option>
-          ))}
-      </select>
+
+      {/* Pestañas */}
+      <div className="flex gap-1 mb-3">
+        <button
+          onClick={() => setMode("milestone")}
+          className={`px-2 py-1 text-[11px] rounded transition-colors ${
+            mode === "milestone"
+              ? "bg-cyan-600 text-white"
+              : "bg-slate-800 text-slate-300 hover:bg-slate-700"
+          }`}
+        >
+          Hito existente
+        </button>
+        <button
+          onClick={() => setMode("external-existing")}
+          className={`px-2 py-1 text-[11px] rounded transition-colors ${
+            mode === "external-existing"
+              ? "bg-cyan-600 text-white"
+              : "bg-slate-800 text-slate-300 hover:bg-slate-700"
+          }`}
+        >
+          Tarea externa existente
+        </button>
+        <button
+          onClick={() => setMode("external-new")}
+          className={`px-2 py-1 text-[11px] rounded transition-colors ${
+            mode === "external-new"
+              ? "bg-cyan-600 text-white"
+              : "bg-slate-800 text-slate-300 hover:bg-slate-700"
+          }`}
+        >
+          + Nueva tarea externa
+        </button>
+      </div>
+
+      {/* Hito interno existente */}
+      {mode === "milestone" && (
+        <div>
+          {availableMilestones.length === 0 ? (
+            <p className="text-xs text-cyan-200/70">
+              No hay otros hitos disponibles. Crea más hitos o usa una tarea externa.
+            </p>
+          ) : (
+            <select
+              className="w-full bg-slate-900 border border-slate-600 rounded px-2 py-1 text-xs text-white mb-2"
+              defaultValue=""
+              onChange={(e) => {
+                if (e.target.value) onSelectMilestoneTarget(e.target.value);
+              }}
+            >
+              <option value="" disabled>
+                -- Elige hito destino --
+              </option>
+              {availableMilestones.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.label} ({m.phaseName} / {m.taskName})
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+      )}
+
+      {/* Tarea externa existente */}
+      {mode === "external-existing" && (
+        <div>
+          {externalTasks.length === 0 ? (
+            <p className="text-xs text-cyan-200/70">
+              No hay tareas externas creadas. Usa la pestaña "Nueva tarea externa".
+            </p>
+          ) : (
+            <select
+              className="w-full bg-slate-900 border border-slate-600 rounded px-2 py-1 text-xs text-white mb-2"
+              defaultValue=""
+              onChange={(e) => {
+                if (e.target.value) onSelectExistingExternal(e.target.value);
+              }}
+            >
+              <option value="" disabled>
+                -- Elige tarea externa --
+              </option>
+              {externalTasks.map((e) => (
+                <option key={e.id} value={e.id}>
+                  {e.label}
+                  {e.provider ? ` · ${e.provider}` : ""}
+                  {" · "}
+                  {weeks[e.week]?.label ?? "S?"}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+      )}
+
+      {/* Nueva tarea externa */}
+      {mode === "external-new" && (
+        <div className="space-y-2">
+          <div>
+            <label className="block text-[11px] text-cyan-200/70 mb-0.5">
+              Descripción
+            </label>
+            <input
+              className="w-full bg-slate-900 border border-slate-600 rounded px-2 py-1 text-xs text-white"
+              value={extLabel}
+              autoFocus
+              onChange={(e) => setExtLabel(e.target.value)}
+              placeholder="Ej: Entrega de diseños"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="block text-[11px] text-cyan-200/70 mb-0.5">
+                Proveedor (opcional)
+              </label>
+              <input
+                className="w-full bg-slate-900 border border-slate-600 rounded px-2 py-1 text-xs text-white"
+                value={extProvider}
+                onChange={(e) => setExtProvider(e.target.value)}
+                placeholder="Ej: Estudio Creativo S.L."
+              />
+            </div>
+            <div>
+              <label className="block text-[11px] text-cyan-200/70 mb-0.5">
+                Semana
+              </label>
+              <select
+                className="w-full bg-slate-900 border border-slate-600 rounded px-2 py-1 text-xs text-white"
+                value={extWeek}
+                onChange={(e) => setExtWeek(Number(e.target.value))}
+              >
+                {weeks.map((w) => (
+                  <option key={w.index} value={w.index}>
+                    {w.label} · {w.startDate.toLocaleDateString("es-ES")}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <button
+            onClick={() =>
+              onSelectExternalTarget(
+                extLabel.trim() || "Tarea externa",
+                extWeek,
+                extProvider.trim() || undefined
+              )
+            }
+            className="w-full mt-1 px-3 py-1.5 text-xs rounded bg-cyan-600 hover:bg-cyan-500 text-white font-medium"
+          >
+            Crear y enlazar
+          </button>
+        </div>
+      )}
     </div>
   );
 };
