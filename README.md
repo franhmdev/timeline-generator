@@ -2,6 +2,8 @@
 
 Aplicación web SPA para la gestión visual de cronogramas de proyecto estilo Gantt/Roadmap, con soporte completo para drag & drop, redimensionado, hitos y dependencias.
 
+🌐 **Demo en vivo**: https://franhmdev.github.io/timeline-generator/
+
 ## Stack técnico
 
 - **React 18 + TypeScript**
