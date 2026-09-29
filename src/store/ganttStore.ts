@@ -28,13 +28,172 @@ const defaultProject: ProjectInfo = {
   description: "Cronograma de proyecto generado dinámicamente.",
   startDate: todayISO(),
   kickoffDate: todayISO(),
-  totalMonths: 6,
+  totalMonths: 7,
   weekStartDay: 1,
 };
 
 function defaultPhases(): Phase[] {
-  return [];
+  return [
+    {
+      id: "phase-1",
+      name: "Inicio y Planificación",
+      tasks: [
+        {
+          id: "task-1",
+          name: "Kick-off y definición de alcance",
+          bars: [
+            { id: "bar-1", startWeek: 0, duration: 2, type: "task" as BarType },
+          ],
+          milestones: [
+            { id: "ms-1", week: 2, label: "Alcance aprobado", type: "hito" as MilestoneType },
+          ],
+        },
+        {
+          id: "task-2",
+          name: "Planificación detallada",
+          bars: [
+            { id: "bar-2", startWeek: 2, duration: 3, type: "task" as BarType },
+          ],
+          milestones: [
+            { id: "ms-2", week: 5, label: "Plan de proyecto validado", type: "hito" as MilestoneType },
+          ],
+        },
+      ],
+    },
+    {
+      id: "phase-2",
+      name: "Diseño",
+      tasks: [
+        {
+          id: "task-3",
+          name: "Diseño UX/UI",
+          bars: [
+            { id: "bar-3", startWeek: 4, duration: 5, type: "task" as BarType },
+          ],
+          milestones: [
+            { id: "ms-3", week: 9, label: "Prototipo aprobado", type: "hito" as MilestoneType },
+            { id: "ms-4", week: 6, label: "Wireframes", type: "dependency" as MilestoneType },
+          ],
+        },
+        {
+          id: "task-4",
+          name: "Identidad visual",
+          bars: [
+            { id: "bar-4", startWeek: 5, duration: 4, type: "task" as BarType },
+          ],
+          milestones: [
+            { id: "ms-5", week: 9, label: "Manual de marca", type: "hito" as MilestoneType },
+          ],
+        },
+      ],
+    },
+    {
+      id: "phase-3",
+      name: "Desarrollo",
+      tasks: [
+        {
+          id: "task-5",
+          name: "Frontend",
+          bars: [
+            { id: "bar-5", startWeek: 8, duration: 8, type: "task" as BarType },
+            { id: "bar-6", startWeek: 17, duration: 3, type: "task" as BarType },
+          ],
+          milestones: [
+            { id: "ms-6", week: 16, label: "Beta frontend", type: "hito" as MilestoneType },
+            { id: "ms-7", week: 20, label: "Frontend completo", type: "hito" as MilestoneType },
+          ],
+        },
+        {
+          id: "task-6",
+          name: "Backend y API",
+          bars: [
+            { id: "bar-7", startWeek: 7, duration: 10, type: "task" as BarType },
+          ],
+          milestones: [
+            { id: "ms-8", week: 17, label: "API en producción", type: "hito" as MilestoneType },
+            { id: "ms-9", week: 10, label: "Integración pagos", type: "dependency" as MilestoneType },
+          ],
+        },
+        {
+          id: "task-7",
+          name: "Base de datos",
+          bars: [
+            { id: "bar-8", startWeek: 6, duration: 6, type: "task" as BarType },
+          ],
+          milestones: [],
+        },
+      ],
+    },
+    {
+      id: "phase-4",
+      name: "Pruebas y QA",
+      tasks: [
+        {
+          id: "task-8",
+          name: "Pruebas funcionales",
+          bars: [
+            { id: "bar-9", startWeek: 16, duration: 5, type: "task" as BarType },
+          ],
+          milestones: [
+            { id: "ms-10", week: 21, label: "UAT completado", type: "hito" as MilestoneType },
+          ],
+        },
+        {
+          id: "task-9",
+          name: "Pruebas de rendimiento",
+          bars: [
+            { id: "bar-10", startWeek: 18, duration: 3, type: "task" as BarType },
+          ],
+          milestones: [
+            { id: "ms-11", week: 21, label: "Optimización OK", type: "dependency" as MilestoneType },
+          ],
+        },
+      ],
+    },
+    {
+      id: "phase-5",
+      name: "Despliegue y Cierre",
+      tasks: [
+        {
+          id: "task-10",
+          name: "Despliegue a producción",
+          bars: [
+            { id: "bar-11", startWeek: 21, duration: 2, type: "task" as BarType },
+          ],
+          milestones: [
+            { id: "ms-12", week: 23, label: "Go-Live", type: "hito" as MilestoneType },
+          ],
+        },
+        {
+          id: "task-11",
+          name: "Cierre y handover",
+          bars: [
+            { id: "bar-12", startWeek: 23, duration: 2, type: "task" as BarType },
+          ],
+          milestones: [
+            { id: "ms-13", week: 25, label: "Proyecto cerrado", type: "hito" as MilestoneType },
+          ],
+        },
+      ],
+    },
+  ];
 }
+
+const defaultDependencies: Dependency[] = [
+  { id: "dep-1", fromMilestoneId: "ms-1", toType: "milestone", toMilestoneId: "ms-2" },
+  { id: "dep-2", fromMilestoneId: "ms-2", toType: "milestone", toMilestoneId: "ms-3" },
+  { id: "dep-3", fromMilestoneId: "ms-3", toType: "milestone", toMilestoneId: "ms-6" },
+  { id: "dep-4", fromMilestoneId: "ms-4", toType: "external", toExternalId: "ext-1" },
+  { id: "dep-5", fromMilestoneId: "ms-6", toType: "milestone", toMilestoneId: "ms-7" },
+  { id: "dep-6", fromMilestoneId: "ms-8", toType: "milestone", toMilestoneId: "ms-10" },
+  { id: "dep-7", fromMilestoneId: "ms-10", toType: "milestone", toMilestoneId: "ms-12" },
+  { id: "dep-8", fromMilestoneId: "ms-9", toType: "external", toExternalId: "ext-2" },
+];
+
+const defaultExternalTasks: ExternalTask[] = [
+  { id: "ext-1", label: "Entrega de diseños finales", provider: "Estudio Creativo S.L.", week: 7 },
+  { id: "ext-2", label: "Certificación PCI-DSS", provider: "SecurityAudit Corp", week: 12 },
+];
 
 interface GanttStore extends ScheduleState {
   // Project
@@ -110,8 +269,8 @@ function loadInitialState(): ScheduleState {
     return {
       project: defaultProject,
       phases: defaultPhases(),
-      dependencies: [],
-      externalTasks: [],
+      dependencies: defaultDependencies,
+      externalTasks: defaultExternalTasks,
     };
   }
   try {
@@ -159,8 +318,8 @@ function loadInitialState(): ScheduleState {
     return {
       project: defaultProject,
       phases: defaultPhases(),
-      dependencies: [],
-      externalTasks: [],
+      dependencies: defaultDependencies,
+      externalTasks: defaultExternalTasks,
     };
   }
 }
@@ -537,8 +696,8 @@ export const useGanttStore = create<GanttStore>((set, get) => {
     set({
       project: defaultProject,
       phases: defaultPhases(),
-      dependencies: [],
-      externalTasks: [],
+      dependencies: defaultDependencies,
+      externalTasks: defaultExternalTasks,
     }),
 
   loadState: (state) =>
